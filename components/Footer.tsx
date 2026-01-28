@@ -44,8 +44,13 @@ export default function Footer() {
                     </div>
                 </div>
             </div>
-            <div className="max-w-7xl mx-auto px-6 mt-12 pt-8 border-t border-gray-800 text-center text-gray-600 text-sm">
-                © 2024 Hershey. All rights reserved.
+            <div className="max-w-7xl mx-auto px-6 mt-12 pt-8 border-t border-white/10 text-center space-y-4">
+                <p className="text-white/40 text-xs">
+                    © 2024 Hershey. All rights reserved.
+                </p>
+                <p className="text-white/30 text-[10px] leading-relaxed max-w-2xl mx-auto italic">
+                    Disclaimer: This is a non-commercial, educational UI/UX project created for learning purposes. All brand names, logos, and product images are used solely for demonstration and are not affiliated with or endorsed by Hershey’s.
+                </p>
             </div>
         </footer>
     );
