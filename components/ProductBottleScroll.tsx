@@ -21,31 +21,42 @@ export default function ProductBottleScroll({ product }: ProductBottleScrollProp
     const frameCount = 120; // 0 to 119
 
     useEffect(() => {
-        // Preload images
         const loadImages = async () => {
-            setIsLoaded(false);
             const loadedImages: HTMLImageElement[] = [];
             const extension = product.imageExtension || 'webp';
 
-            const promises = Array.from({ length: frameCount }).map((_, i) => {
-                return new Promise<void>((resolve, reject) => {
+            // 1. Load the first frame immediately to show something fast
+            const loadFrame = (index: number) => {
+                return new Promise<HTMLImageElement>((resolve) => {
                     const img = new Image();
-                    img.src = `${product.folderPath}/${i + 1}.${extension}`;
-                    img.onload = () => {
-                        loadedImages[i] = img;
-                        resolve();
-                    };
+                    img.src = `${product.folderPath}/${index + 1}.${extension}`;
+                    img.onload = () => resolve(img);
                     img.onerror = () => {
-                        // Fallback or just resolve to avoid blocking everything (could look glitchy)
-                        console.warn(`Failed to load image ${i + 1}`);
-                        resolve();
-                    }
+                        console.warn(`Failed to load frame ${index + 1}`);
+                        resolve(new Image()); // Resolve with empty to avoid blocking
+                    };
                 });
-            });
+            };
 
-            await Promise.all(promises);
-            setImages(loadedImages);
-            setIsLoaded(true);
+            const firstFrame = await loadFrame(0);
+            loadedImages[0] = firstFrame;
+            setImages([...loadedImages]);
+            setIsLoaded(true); // Show canvas as soon as 1st frame is ready
+
+            // 2. Load the rest in small batches in the background
+            const remainingIndices = Array.from({ length: frameCount - 1 }, (_, i) => i + 1);
+            const batchSize = 10;
+
+            for (let i = 0; i < remainingIndices.length; i += batchSize) {
+                const batch = remainingIndices.slice(i, i + batchSize);
+                const batchPromises = batch.map(idx =>
+                    loadFrame(idx).then(img => {
+                        loadedImages[idx] = img;
+                    })
+                );
+                await Promise.all(batchPromises);
+                setImages([...loadedImages]); // Update images array incrementally
+            }
         };
 
         loadImages();

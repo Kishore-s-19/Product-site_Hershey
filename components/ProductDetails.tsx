@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Product } from '@/data/products';
 import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
 
 const AccordionItem = ({ title, children }: { title: string; children: React.ReactNode }) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -69,7 +70,7 @@ export default function ProductDetails({ product }: { product: Product }) {
                 >
                     {/* Image Gallery Column */}
                     <div className="flex flex-col md:flex-row gap-6">
-                        {/* Thumbnail Strip: Bottom on mobile (<768px), Left on desktop (>=768px) */}
+                        {/* Thumbnail Strip */}
                         <div className="flex flex-row md:flex-col gap-3 order-2 md:order-1 justify-center md:justify-start overflow-x-auto pb-2 md:pb-0">
                             {productImages.map((img, index) => (
                                 <button
@@ -80,28 +81,36 @@ export default function ProductDetails({ product }: { product: Product }) {
                                         : 'border-gray-100 hover:border-orange-200 bg-gray-50'
                                         }`}
                                 >
-                                    <img
+                                    <Image
                                         src={img.src}
                                         alt={img.alt}
+                                        width={80}
+                                        height={80}
                                         className="w-full h-full object-cover p-1"
                                     />
                                 </button>
                             ))}
                         </div>
 
-                        {/* Main Image Display: Top on mobile, Right on desktop */}
-                        <div className="flex-1 bg-orange-50/50 rounded-[2rem] md:rounded-[3rem] p-6 md:p-12 flex items-center justify-center overflow-hidden order-1 md:order-2 group">
+                        {/* Main Image Display */}
+                        <div className="flex-1 bg-orange-50/50 rounded-[2rem] md:rounded-[3rem] p-6 md:p-12 flex items-center justify-center overflow-hidden order-1 md:order-2 group min-h-[400px]">
                             <AnimatePresence mode="wait">
-                                <motion.img
+                                <motion.div
                                     key={activeImage}
-                                    src={productImages[activeImage].src}
-                                    alt={productImages[activeImage].alt}
                                     initial={{ opacity: 0, y: 20, scale: 0.9 }}
                                     animate={{ opacity: 1, y: 0, scale: 1 }}
                                     exit={{ opacity: 0, y: -20, scale: 0.9 }}
                                     transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
-                                    className="max-w-full h-[350px] md:h-[500px] object-contain drop-shadow-2xl transform transition-transform duration-500 group-hover:scale-105"
-                                />
+                                    className="relative w-full h-[350px] md:h-[500px]"
+                                >
+                                    <Image
+                                        src={productImages[activeImage].src}
+                                        alt={productImages[activeImage].alt}
+                                        fill
+                                        className="object-contain drop-shadow-2xl transform transition-transform duration-500 group-hover:scale-105"
+                                        priority={activeImage === 0}
+                                    />
+                                </motion.div>
                             </AnimatePresence>
                         </div>
                     </div>
